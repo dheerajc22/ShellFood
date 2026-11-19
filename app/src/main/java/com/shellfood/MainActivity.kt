@@ -94,7 +94,7 @@ class MainActivity : ComponentActivity() {
                 id = "burger_001",
                 name = "Classic Burger",
                 description = "Juicy burger with cheese",
-                price = "₹149",
+                price =     149,
                 emoji = "🍔",
                 isVeg = false
             ),
@@ -102,7 +102,7 @@ class MainActivity : ComponentActivity() {
                 id = "pizza_001",
                 name = "Veg Pizza",
                 description = "Loaded with fresh vegetables",
-                price = "₹199",
+                price = 199,
                 emoji = "🍕",
                 isVeg = true
             ),
@@ -110,7 +110,7 @@ class MainActivity : ComponentActivity() {
                 id = "biryani_001",
                 name = "Chicken Biryani",
                 description = "Aromatic dum biryani",
-                price = "₹249",
+                price = 249,
                 emoji = "🍛",
                 isVeg = false
             ),
@@ -118,7 +118,7 @@ class MainActivity : ComponentActivity() {
                 id = "wrap_001",
                 name = "Paneer Wrap",
                 description = "Paneer with spicy sauces",
-                price = "₹129",
+                price = 129,
                 emoji = "🌯",
                 isVeg = true
             )
@@ -549,7 +549,7 @@ class MainActivity : ComponentActivity() {
                 "burger_001",
                 "Classic Burger",
                 "Juicy burger with cheese",
-                "₹149",
+                149,
                 "🍔",
                 false
             ),
@@ -557,7 +557,7 @@ class MainActivity : ComponentActivity() {
                 "pizza_001",
                 "Veg Pizza",
                 "Loaded with fresh vegetables",
-                "₹199",
+                199,
                 "🍕",
                 true
             ),
@@ -565,7 +565,7 @@ class MainActivity : ComponentActivity() {
                 "biryani_001",
                 "Chicken Biryani",
                 "Aromatic dum biryani",
-                "₹249",
+                249,
                 "🍛",
                 false
             ),
@@ -573,7 +573,7 @@ class MainActivity : ComponentActivity() {
                 "wrap_001",
                 "Paneer Wrap",
                 "Paneer with spicy sauces",
-                "₹129",
+                129,
                 "🌯",
                 true
             )

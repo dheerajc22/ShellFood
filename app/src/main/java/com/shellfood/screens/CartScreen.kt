@@ -215,7 +215,7 @@
                     )
                     Spacer(modifier = Modifier.height(5.dp))
                     Text(
-                        text = item.food.price,
+                        text = "₹${item.food.price}",
                         color = CartOrange,
                         fontWeight = FontWeight.Bold
                     )

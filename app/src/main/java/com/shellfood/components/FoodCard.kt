@@ -74,7 +74,7 @@ fun FoodCard(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = food.price,
+                    text = "₹${food.price}",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFFE86A16)

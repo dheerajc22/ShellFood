@@ -17,7 +17,7 @@ fun CheckoutScreen(
     onBackClick: () -> Unit,
     onPlaceOrder: (String) -> Unit
 ) {
-    val cartItems = cartManager.cartItems
+    val cartItems by cartManager.cartItemsFlow.collectAsState()
     val subtotal = cartManager.getCartTotal()
     val deliveryFee = 30
     val tax = (subtotal * 0.05).roundToInt()

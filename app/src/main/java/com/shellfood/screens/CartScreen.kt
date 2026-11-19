@@ -13,6 +13,8 @@
     import androidx.compose.ui.unit.sp
     import com.shellfood.data.CartManager
     import com.shellfood.data.CartItem
+    import androidx.compose.runtime.collectAsState
+    import androidx.compose.runtime.getValue
     private val CartOrange = Color(0xFFE86A16)
 
     @Composable
@@ -21,7 +23,7 @@
         onCheckoutClick: () -> Unit
     ) {
         // Observe cart items
-        val cartItems = cartManager.cartItems
+        val cartItems by cartManager.cartItemsFlow.collectAsState()
         val subtotal = cartManager.getCartTotal()
         val itemCount = cartManager.getCartItemCount()
         Column(

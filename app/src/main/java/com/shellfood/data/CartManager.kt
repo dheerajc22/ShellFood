@@ -1,76 +1,84 @@
 package com.shellfood.data
 
-import androidx.compose.runtime.mutableStateListOf
-
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 class CartManager {
-    // Shared cart items
-    private val _cartItems = mutableStateListOf<CartItem>()
+    private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
+    // Public read-only cart state for observing UI changes
+    val cartItemsFlow: StateFlow<List<CartItem>> =
+        _cartItems.asStateFlow()
+    // Current cart snapshot for business logic
     val cartItems: List<CartItem>
-        get() = _cartItems.toList()
-
+        get() = _cartItems.value
     // Add food to cart
     fun addToCart(food: FoodItem) {
-        val existingItem = _cartItems.find {
-            it.food.id == food.id
-        }
-        if (existingItem != null) {
-
-            updateQuantity(
-                food.id,
-                existingItem.quantity + 1
-            )
-        } else {
-            _cartItems.add(
-                CartItem(
+        _cartItems.update { currentItems ->
+            val existingItem = currentItems.find {
+                it.food.id == food.id
+            }
+            if (existingItem != null) {
+                currentItems.map { item ->
+                    if (item.food.id == food.id) {
+                        item.copy(quantity = item.quantity + 1)
+                    } else {
+                        item
+                    }
+                }
+            } else {
+                currentItems + CartItem(
                     food = food,
                     quantity = 1
-                )
-            )
-        }
-    }
-    // Remove food from cart
-    fun removeFromCart(foodId: String) {
-        _cartItems.removeAll {
-            it.food.id == foodId
-        }
-    }
-    // Update food quantity
-    fun updateQuantity(
-        foodId: String,
-        newQuantity: Int
-    ) {
-
-        val index = _cartItems.indexOfFirst {
-            it.food.id == foodId
-        }
-        if (index != -1) {
-
-            if (newQuantity <= 0) {
-                _cartItems.removeAt(index)
-            } else {
-
-                val existingItem = _cartItems[index]
-
-                _cartItems[index] = existingItem.copy(
-                    quantity = newQuantity
                 )
             }
         }
     }
+
+    // Remove food from cart
+    fun removeFromCart(foodId: String) {
+        _cartItems.update { currentItems ->
+            currentItems.filterNot {
+                it.food.id == foodId
+            }
+        }
+    }
+
+    // Update food quantity
+    fun updateQuantity(foodId: String, newQuantity: Int) {
+        _cartItems.update { currentItems ->
+            if (newQuantity <= 0) {
+                currentItems.filterNot {
+                    it.food.id == foodId
+                }
+            } else {
+                currentItems.map { item ->
+                    if (item.food.id == foodId) {
+                        item.copy(quantity = newQuantity)
+                    } else {
+                        item
+                    }
+                }
+            }
+        }
+    }
+
     // Calculate total cart price
     fun getCartTotal(): Int {
-        return _cartItems.sumOf {
+        return _cartItems.value.sumOf {
             it.totalPrice
         }
     }
+
     // Calculate total number of items
     fun getCartItemCount(): Int {
-        return _cartItems.sumOf {
+        return _cartItems.value.sumOf {
             it.quantity
         }
     }
+
     // Clear entire cart
     fun clearCart() {
-        _cartItems.clear()
+        _cartItems.value = emptyList()
     }
 }

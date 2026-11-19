@@ -27,3 +27,20 @@ local.properties
 *.log
 .DS_Store
 Thumbs.db
+
+## Application Screenshots
+
+### Login Screen
+![Login](screenshots/login.png)
+
+### Home Screen
+![Home](screenshots/home.png)
+
+### Food Search
+![Search](screenshots/search.png)
+
+### Favorites
+![Favorites](screenshots/favorites.png)
+
+### User Profile
+![Profile](screenshots/profile.png)

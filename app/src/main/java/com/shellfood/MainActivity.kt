@@ -41,6 +41,7 @@ import com.shellfood.screens.CheckoutScreen
 import com.shellfood.data.OrderManager
 import com.shellfood.screens.OrderConfirmationScreen
 import com.shellfood.data.Order
+import com.shellfood.screens.MyOrdersScreen
 
 private val ShellOrange = Color(0xFFFF6B00)
 private val ShellDark = Color(0xFF252525)
@@ -81,7 +82,7 @@ class MainActivity : ComponentActivity() {
         )
         // Coroutine scope
         val coroutineScope = rememberCoroutineScope()
-            // Shared Cart Manager
+        // Shared Cart Manager
         val cartManager = remember {
             CartManager()
         }
@@ -94,7 +95,7 @@ class MainActivity : ComponentActivity() {
                 id = "burger_001",
                 name = "Classic Burger",
                 description = "Juicy burger with cheese",
-                price =     149,
+                price = 149,
                 emoji = "🍔",
                 isVeg = false
             ),
@@ -142,6 +143,7 @@ class MainActivity : ComponentActivity() {
                         currentScreen = "phone"
                     }
                 )
+
                 "phone" -> PhoneNumberScreen(
                     onBackClick = {
                         currentScreen = "login"
@@ -152,6 +154,7 @@ class MainActivity : ComponentActivity() {
                         currentScreen = "otp"
                     }
                 )
+
                 "otp" -> OtpScreen(
                     phoneNumber = phoneNumber,
                     generatedOtp = generatedOtp,
@@ -165,11 +168,13 @@ class MainActivity : ComponentActivity() {
                         currentScreen = "success"
                     }
                 )
+
                 "success" -> LoginSuccessfulScreen(
                     onEnterApplication = {
                         currentScreen = "home"
                     }
                 )
+
                 "order-confirmation" -> {
                     currentOrder?.let { order ->
                         OrderConfirmationScreen(
@@ -182,6 +187,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 }
+
                 "home" -> HomeScreen(
                     favoriteFoods = favoriteFoods,
                     onFavoriteClick = { food ->
@@ -207,12 +213,14 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
     // OTP GENERATION
     private fun generateOtp(): String {
         return (100000..999999)
             .random()
             .toString()
     }
+
     // PHONE NUMBER SCREEN
     @Composable
     fun PhoneNumberScreen(
@@ -310,6 +318,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
     // OTP VERIFICATION SCREEN
     @Composable
     fun OtpScreen(
@@ -440,7 +449,6 @@ class MainActivity : ComponentActivity() {
                 )
             }
             Spacer(modifier = Modifier.height(24.dp))
-
             Button(
                 onClick = {
                     when {
@@ -448,6 +456,7 @@ class MainActivity : ComponentActivity() {
                             errorMessage =
                                 "OTP has expired. Please resend OTP."
                         }
+
                         otp == generatedOtp -> {
                             onVerificationSuccess()
                         }
@@ -475,6 +484,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
     // LOGIN SUCCESSFUL SCREEN
     @Composable
     fun LoginSuccessfulScreen(
@@ -526,6 +536,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
     // HOME SCREEN
     @Composable
     fun HomeScreen(
@@ -536,8 +547,7 @@ class MainActivity : ComponentActivity() {
         cartManager: CartManager,
         orderManager: OrderManager,
         onOrderPlaced: (Order) -> Unit
-    )
-    {
+    ) {
         var searchQuery by remember {
             mutableStateOf("")
         }
@@ -816,14 +826,8 @@ class MainActivity : ComponentActivity() {
                     // ORDERS TAB
                     "Orders" -> {
                         item {
-                            Text(
-                                text = "My Orders",
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "Your order history will appear here.",
-                                color = Color.Gray
+                            MyOrdersScreen(
+                                orderManager = orderManager
                             )
                         }
                     }

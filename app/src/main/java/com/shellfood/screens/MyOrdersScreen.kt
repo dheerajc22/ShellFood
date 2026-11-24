@@ -1,4 +1,6 @@
 package com.shellfood.screens
+import androidx.compose.runtime.*
+import com.shellfood.screens.OrderDetailsScreen
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -11,11 +13,17 @@ import androidx.compose.ui.unit.sp
 import com.shellfood.data.Order
 import com.shellfood.data.OrderManager
 import com.shellfood.components.OrderStatusTracker
+import androidx.compose.foundation.clickable
+import androidx.compose.material3.Card
+
 @Composable
 fun MyOrdersScreen(
     orderManager: OrderManager
 ) {
     val orders = orderManager.orders
+    var selectedOrder by remember {
+        mutableStateOf<Order?>(null)
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -27,40 +35,31 @@ fun MyOrdersScreen(
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(16.dp))
-        if (orders.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(40.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment =    Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "🛍️",
-                        fontSize = 50.sp
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = "No Orders Yet",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "Your placed orders will appear here."
-                    )
+        if (selectedOrder != null) {
+            OrderDetailsScreen(
+                order = selectedOrder!!,
+                onBackClick = {
+                    selectedOrder = null
                 }
-            }
+            )
         } else {
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 orders.forEach { order ->
-                    OrderCard(
-                        order = order,
-                        orderManager = orderManager
-                    )
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                selectedOrder = order
+                            },
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        OrderCard(
+                            order = order,
+                            orderManager = orderManager
+                        )
+                    }
                 }
             }
         }
@@ -94,11 +93,11 @@ private fun OrderCard(
                 currentStatus = order.orderStatus
             )
             val statuses = listOf(
-            "Confirmed",
-            "Preparing",
-            "Out for Delivery",
-            "Delivered"
-        )
+                "Confirmed",
+                "Preparing",
+                "Out for Delivery",
+                "Delivered"
+            )
             val currentIndex = statuses.indexOf(order.orderStatus)
             if (currentIndex in 0 until statuses.lastIndex) {
                 Spacer(modifier = Modifier.height(12.dp))
@@ -156,6 +155,7 @@ private fun OrderCard(
                     fontSize = 18.sp
                 )
             }
-        }
+                                                                                                }
     }
 }
+

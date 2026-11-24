@@ -34,7 +34,6 @@ class CartManager {
             }
         }
     }
-
     // Remove food from cart
     fun removeFromCart(foodId: String) {
         _cartItems.update { currentItems ->
@@ -43,7 +42,6 @@ class CartManager {
             }
         }
     }
-
     // Update food quantity
     fun updateQuantity(foodId: String, newQuantity: Int) {
         _cartItems.update { currentItems ->
@@ -62,21 +60,18 @@ class CartManager {
             }
         }
     }
-
     // Calculate total cart price
     fun getCartTotal(): Int {
         return _cartItems.value.sumOf {
             it.totalPrice
         }
     }
-
     // Calculate total number of items
     fun getCartItemCount(): Int {
         return _cartItems.value.sumOf {
             it.quantity
         }
     }
-
     // Clear entire cart
     fun clearCart() {
         _cartItems.value = emptyList()

@@ -137,13 +137,11 @@ class MainActivity : ComponentActivity() {
             color = ShellCream
         ) {
             when (currentScreen) {
-
                 "login" -> LoginScreen(
                     onGetStarted = {
                         currentScreen = "phone"
                     }
                 )
-
                 "phone" -> PhoneNumberScreen(
                     onBackClick = {
                         currentScreen = "login"
@@ -154,7 +152,6 @@ class MainActivity : ComponentActivity() {
                         currentScreen = "otp"
                     }
                 )
-
                 "otp" -> OtpScreen(
                     phoneNumber = phoneNumber,
                     generatedOtp = generatedOtp,
@@ -168,13 +165,11 @@ class MainActivity : ComponentActivity() {
                         currentScreen = "success"
                     }
                 )
-
                 "success" -> LoginSuccessfulScreen(
                     onEnterApplication = {
                         currentScreen = "home"
                     }
                 )
-
                 "order-confirmation" -> {
                     currentOrder?.let { order ->
                         OrderConfirmationScreen(
@@ -187,7 +182,6 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 }
-
                 "home" -> HomeScreen(
                     favoriteFoods = favoriteFoods,
                     onFavoriteClick = { food ->
@@ -213,14 +207,12 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
     // OTP GENERATION
     private fun generateOtp(): String {
         return (100000..999999)
             .random()
             .toString()
     }
-
     // PHONE NUMBER SCREEN
     @Composable
     fun PhoneNumberScreen(
@@ -318,7 +310,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
     // OTP VERIFICATION SCREEN
     @Composable
     fun OtpScreen(
@@ -456,11 +447,9 @@ class MainActivity : ComponentActivity() {
                             errorMessage =
                                 "OTP has expired. Please resend OTP."
                         }
-
                         otp == generatedOtp -> {
                             onVerificationSuccess()
                         }
-
                         else -> {
                             errorMessage =
                                 "Invalid OTP. Please try again."
@@ -484,7 +473,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
     // LOGIN SUCCESSFUL SCREEN
     @Composable
     fun LoginSuccessfulScreen(
@@ -536,7 +524,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
     // HOME SCREEN
     @Composable
     fun HomeScreen(

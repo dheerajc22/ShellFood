@@ -1,28 +1,33 @@
 package com.shellfood.screens
-import androidx.compose.runtime.*
-import com.shellfood.screens.OrderDetailsScreen
+
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.shellfood.data.Order
-import com.shellfood.data.OrderManager
 import com.shellfood.components.OrderStatusTracker
-import androidx.compose.foundation.clickable
-import androidx.compose.material3.Card
+import com.shellfood.viewmodel.OrderViewModel
 
 @Composable
 fun MyOrdersScreen(
-    orderManager: OrderManager
+    orderViewModel: OrderViewModel
 ) {
-    val orders = orderManager.orders
-    var selectedOrder by remember {
-        mutableStateOf<Order?>(null)
+    // Observe orders stored in Room
+    val orders by orderViewModel.orders.collectAsState()
+
+    // Store the selected order ID
+    var selectedOrderId by remember {
+        mutableStateOf<String?>(null)
+    }
+    // Always get the latest version of the selected order
+    val selectedOrder = orders.firstOrNull {
+        it.orderId == selectedOrderId
     }
     Column(
         modifier = Modifier
@@ -37,11 +42,24 @@ fun MyOrdersScreen(
         Spacer(modifier = Modifier.height(16.dp))
         if (selectedOrder != null) {
             OrderDetailsScreen(
-                order = selectedOrder!!,
+                order = selectedOrder,
                 onBackClick = {
-                    selectedOrder = null
+                    selectedOrderId = null
                 }
             )
+        } else if (orders.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "You haven't placed any orders yet.",
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         } else {
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -51,13 +69,13 @@ fun MyOrdersScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                selectedOrder = order
+                                selectedOrderId = order.orderId
                             },
                         shape = RoundedCornerShape(16.dp)
                     ) {
                         OrderCard(
                             order = order,
-                            orderManager = orderManager
+                            orderViewModel = orderViewModel
                         )
                     }
                 }
@@ -68,8 +86,8 @@ fun MyOrdersScreen(
 @Composable
 private fun OrderCard(
     order: Order,
-    orderManager: OrderManager
-){
+    orderViewModel: OrderViewModel
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp)
@@ -97,13 +115,13 @@ private fun OrderCard(
                 "Preparing",
                 "Out for Delivery",
                 "Delivered"
-            )
+        )
             val currentIndex = statuses.indexOf(order.orderStatus)
             if (currentIndex in 0 until statuses.lastIndex) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Button(
                     onClick = {
-                        orderManager.updateOrderStatus(
+                        orderViewModel.updateOrderStatus(
                             orderId = order.orderId,
                             newStatus = statuses[currentIndex + 1]
                         )
@@ -155,7 +173,6 @@ private fun OrderCard(
                     fontSize = 18.sp
                 )
             }
-                                                                                                }
+        }
     }
 }
-

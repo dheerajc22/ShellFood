@@ -1,3 +1,4 @@
+
 package com.shellfood.screens
 
 import androidx.compose.foundation.layout.*
@@ -8,38 +9,45 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.shellfood.data.CartManager
+import com.shellfood.viewmodel.CartViewModel
 import kotlin.math.roundToInt
 
 @Composable
 fun CheckoutScreen(
-    cartManager: CartManager,
+    cartViewModel: CartViewModel,
     onBackClick: () -> Unit,
     onPlaceOrder: (String) -> Unit
 ) {
-    val cartItems by cartManager.cartItemsFlow.collectAsState()
-    val subtotal = cartManager.getCartTotal()
+    // Observe cart items from Room through CartViewModel
+    val cartItems by cartViewModel.cartItems.collectAsState()
+
+    val subtotal = cartItems.sumOf { it.totalPrice }
     val deliveryFee = 30
     val tax = (subtotal * 0.05).roundToInt()
     val total = subtotal + deliveryFee + tax
+
     var selectedPayment by remember {
         mutableStateOf("UPI")
     }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+
         // HEADER
         Text(
             text = "Checkout",
             fontSize = 26.sp,
             fontWeight = FontWeight.Bold
         )
+
         TextButton(onClick = onBackClick) {
             Text("← Back to Cart")
         }
+
         // DELIVERY ADDRESS
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -53,16 +61,20 @@ fun CheckoutScreen(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )
+
                 Spacer(modifier = Modifier.height(8.dp))
+
                 Text(
                     text = "Home Address",
                     fontWeight = FontWeight.SemiBold
                 )
+
                 Text(
                     text = "Add your delivery address here"
                 )
             }
         }
+
         // ORDER SUMMARY
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -76,7 +88,9 @@ fun CheckoutScreen(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )
+
                 Spacer(modifier = Modifier.height(12.dp))
+
                 if (cartItems.isEmpty()) {
                     Text("Your cart is empty.")
                 } else {
@@ -91,12 +105,14 @@ fun CheckoutScreen(
                                 text = "${item.food.name} × ${item.quantity}",
                                 modifier = Modifier.weight(1f)
                             )
+
                             Text("₹${item.totalPrice}")
                         }
                     }
                 }
             }
         }
+
         // PAYMENT METHODS
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -110,12 +126,15 @@ fun CheckoutScreen(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )
+
                 Spacer(modifier = Modifier.height(8.dp))
+
                 val paymentMethods = listOf(
                     "UPI",
                     "Credit / Debit Card",
                     "Cash on Delivery"
                 )
+
                 paymentMethods.forEach { method ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -127,6 +146,7 @@ fun CheckoutScreen(
                                 selectedPayment = method
                             }
                         )
+
                         Text(
                             text = method,
                             modifier = Modifier.padding(top = 12.dp)
@@ -135,6 +155,7 @@ fun CheckoutScreen(
                 }
             }
         }
+
         // BILL DETAILS
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -148,13 +169,17 @@ fun CheckoutScreen(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )
+
                 Spacer(modifier = Modifier.height(12.dp))
+
                 BillRow("Item Subtotal", subtotal)
                 BillRow("Delivery Fee", deliveryFee)
                 BillRow("Tax (5%)", tax)
+
                 HorizontalDivider(
                     modifier = Modifier.padding(vertical = 12.dp)
                 )
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -164,6 +189,7 @@ fun CheckoutScreen(
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
                     )
+
                     Text(
                         text = "₹$total",
                         fontWeight = FontWeight.Bold,
@@ -172,6 +198,7 @@ fun CheckoutScreen(
                 }
             }
         }
+
         // PLACE ORDER
         Button(
             onClick = {
@@ -191,6 +218,7 @@ fun CheckoutScreen(
         }
     }
 }
+
 @Composable
 private fun BillRow(
     label: String,

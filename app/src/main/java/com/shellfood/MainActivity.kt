@@ -42,6 +42,17 @@ import com.shellfood.data.OrderManager
 import com.shellfood.screens.OrderConfirmationScreen
 import com.shellfood.data.Order
 import com.shellfood.screens.MyOrdersScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.shellfood.data.local.ShellFoodDatabase
+import com.shellfood.data.repository.CartRepository
+import com.shellfood.viewmodel.CartViewModel
+import com.shellfood.viewmodel.CartViewModelFactory
+import com.shellfood.viewmodel.OrderViewModel
+import com.shellfood.viewmodel.OrderViewModelFactory
+import com.shellfood.data.repository.OrderRepository
+import android.widget.Toast
+import java.util.UUID
+import kotlin.math.roundToInt
 
 private val ShellOrange = Color(0xFFFF6B00)
 private val ShellDark = Color(0xFF252525)
@@ -76,6 +87,24 @@ class MainActivity : ComponentActivity() {
         val favoriteDataStore = remember(context) {
             FavoriteDataStore(context)
         }
+        // Initialize Room Database
+        val database = remember(context) {
+            ShellFoodDatabase.getDatabase(context)
+        }
+// Initialize Cart Repository
+        val cartRepository = remember(database) {
+            CartRepository(database.cartDao())
+        }
+// Initialize Cart ViewModel
+        val cartViewModel: CartViewModel = viewModel(
+            factory = CartViewModelFactory(cartRepository)
+        )
+        val orderRepository = remember(database) {
+            OrderRepository(database)
+        }
+        val orderViewModel: OrderViewModel = viewModel(
+            factory = OrderViewModelFactory(orderRepository)
+        )
         // Observe saved favorite IDs
         val favoriteIds by favoriteDataStore.favoriteIds.collectAsState(
             initial = emptySet()
@@ -184,6 +213,9 @@ class MainActivity : ComponentActivity() {
                 }
                 "home" -> HomeScreen(
                     favoriteFoods = favoriteFoods,
+                    orderViewModel = orderViewModel,
+                    cartViewModel = cartViewModel,
+
                     onFavoriteClick = { food ->
                         coroutineScope.launch {
                             if (food.id in favoriteIds) {
@@ -193,12 +225,16 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     },
+
                     selectedTab = selectedTab,
+
                     onTabSelected = {
                         selectedTab = it
                     },
+
                     cartManager = cartManager,
                     orderManager = orderManager,
+
                     onOrderPlaced = { order ->
                         currentOrder = order
                         currentScreen = "order-confirmation"
@@ -533,8 +569,12 @@ class MainActivity : ComponentActivity() {
         onTabSelected: (String) -> Unit,
         cartManager: CartManager,
         orderManager: OrderManager,
+        cartViewModel: CartViewModel,
+        orderViewModel: OrderViewModel,
         onOrderPlaced: (Order) -> Unit
     ) {
+        val context = LocalContext.current
+
         var searchQuery by remember {
             mutableStateOf("")
         }
@@ -717,7 +757,7 @@ class MainActivity : ComponentActivity() {
                                         onFavoriteClick(food)
                                     },
                                     onAddToCart = {
-                                        cartManager.addToCart(food)
+                                        cartViewModel.addToCart(food)
                                     }
                                 )
                             }
@@ -727,7 +767,7 @@ class MainActivity : ComponentActivity() {
                     "Cart" -> {
                         item {
                             CartScreen(
-                                cartManager = cartManager,
+                                cartViewModel = cartViewModel,
                                 onCheckoutClick = {
                                     onTabSelected("Checkout")
                                 }
@@ -735,20 +775,56 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     // CHECKOUT TAB
+
                     "Checkout" -> {
                         item {
                             CheckoutScreen(
-                                cartManager = cartManager,
+                                cartViewModel = cartViewModel,
                                 onBackClick = {
                                     onTabSelected("Cart")
                                 },
                                 onPlaceOrder = { paymentMethod ->
-                                    val order = orderManager.placeOrder(
-                                        cartManager = cartManager,
-                                        paymentMethod = paymentMethod
-                                    )
-                                    if (order != null) {
-                                        onOrderPlaced(order)
+
+                                    val cartItems = cartViewModel.cartItems.value
+
+                                    if (cartItems.isNotEmpty()) {
+
+                                        val subtotal = cartItems.sumOf {
+                                            it.totalPrice
+                                        }
+
+                                        val deliveryFee = 30
+                                        val tax = (subtotal * 0.05).roundToInt()
+                                        val totalAmount = subtotal + deliveryFee + tax
+
+                                        val order = Order(
+                                            orderId = UUID.randomUUID()
+                                                .toString()
+                                                .take(8)
+                                                .uppercase(),
+                                            items = cartItems,
+                                            subtotal = subtotal,
+                                            deliveryFee = deliveryFee,
+                                            tax = tax,
+                                            totalAmount = totalAmount,
+                                            paymentMethod = paymentMethod,
+                                            orderStatus = "Confirmed"
+                                        )
+
+                                        orderViewModel.placeOrder(
+                                            order = order,
+                                            onSuccess = {
+                                                cartViewModel.clearCart()
+                                                onOrderPlaced(order)
+                                            },
+                                                onError = { message ->
+                                                    Toast.makeText(
+                                                        context,
+                                                        message,
+                                                        Toast.LENGTH_LONG
+                                                    ).show()
+                                                }
+                                        )
                                     }
                                 }
                             )
@@ -814,7 +890,7 @@ class MainActivity : ComponentActivity() {
                     "Orders" -> {
                         item {
                             MyOrdersScreen(
-                                orderManager = orderManager
+                                orderViewModel = orderViewModel
                             )
                         }
                     }

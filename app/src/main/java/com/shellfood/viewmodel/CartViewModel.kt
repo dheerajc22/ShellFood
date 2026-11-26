@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class CartViewModel(
+class   CartViewModel(
     private val cartRepository: CartRepository
 ) : ViewModel() {
     // Observe cart items from Room

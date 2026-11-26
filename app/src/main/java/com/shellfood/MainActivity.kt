@@ -34,11 +34,9 @@ import com.shellfood.screens.LoginScreen
 import com.shellfood.screens.CartScreen
 import com.shellfood.data.FavoriteDataStore
 import com.shellfood.data.FoodItem
-import com.shellfood.data.CartManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.shellfood.screens.CheckoutScreen
-import com.shellfood.data.OrderManager
 import com.shellfood.screens.OrderConfirmationScreen
 import com.shellfood.data.Order
 import com.shellfood.screens.MyOrdersScreen
@@ -111,13 +109,6 @@ class MainActivity : ComponentActivity() {
         )
         // Coroutine scope
         val coroutineScope = rememberCoroutineScope()
-        // Shared Cart Manager
-        val cartManager = remember {
-            CartManager()
-        }
-        val orderManager = remember {
-            OrderManager()
-        }
         // Food catalogue
         val foodItems = listOf(
             FoodItem(
@@ -231,9 +222,6 @@ class MainActivity : ComponentActivity() {
                     onTabSelected = {
                         selectedTab = it
                     },
-
-                    cartManager = cartManager,
-                    orderManager = orderManager,
 
                     onOrderPlaced = { order ->
                         currentOrder = order
@@ -567,8 +555,6 @@ class MainActivity : ComponentActivity() {
         onFavoriteClick: (FoodItem) -> Unit,
         selectedTab: String,
         onTabSelected: (String) -> Unit,
-        cartManager: CartManager,
-        orderManager: OrderManager,
         cartViewModel: CartViewModel,
         orderViewModel: OrderViewModel,
         onOrderPlaced: (Order) -> Unit
@@ -880,7 +866,7 @@ class MainActivity : ComponentActivity() {
                                         onFavoriteClick(food)
                                     },
                                     onAddToCart = {
-                                        cartManager.addToCart(food)
+                                        cartViewModel.addToCart(food)
                                     }
                                 )
                             }
